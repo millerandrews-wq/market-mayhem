@@ -1,0 +1,74 @@
+<!-- ... existing code ... -->
+        // Camera Lerp
+        if (p1) {
+            const targetCamX = p1.x - camera.width / 2;
+            const targetCamY = p1.y - camera.height / 2;
+            camera.x += (targetCamX - camera.x) * 0.1;
+            camera.y += (targetCamY - camera.y) * 0.1;
+
+            camera.x = Math.max(0, Math.min(WORLD_WIDTH - camera.width, camera.x));
+            camera.y = Math.max(0, Math.min(WORLD_HEIGHT - camera.height, camera.y));
+        }
+
+        // Periodic multiplayer state broadcast (~20 updates/sec)
+        const now = performance.now();
+        if (now - lastNetworkSync > 50) {
+            lastNetworkSync = now;
+            broadcastPlayerState();
+        }
+
+        updateHUD();
+    }
+<!-- ... existing code ... -->
+    document.getElementById('btn-create-account').addEventListener('click', () => {
+        const input = document.getElementById('new-account-name');
+        if (accountMgr.createAccount(input.value)) {
+            input.value = '';
+            sound.playRegisterChime();
+        }
+    });
+
+    // Multiplayer Modal Wireup
+    const mpModal = document.getElementById('multiplayer-modal');
+    const btnOpenMp = document.getElementById('btn-multiplayer');
+    const btnCloseMp = document.getElementById('btn-close-multiplayer');
+    const btnSaveMp = document.getElementById('btn-save-multiplayer');
+    const btnJoinRoom = document.getElementById('btn-join-room');
+    const inputRoom = document.getElementById('input-room-code');
+
+    const openMpModal = () => {
+        if (inputRoom) inputRoom.value = currentRoomCode;
+        if (mpModal) mpModal.classList.remove('hidden');
+    };
+    const closeMpModal = () => {
+        if (mpModal) mpModal.classList.add('hidden');
+    };
+
+    if (btnOpenMp) btnOpenMp.addEventListener('click', openMpModal);
+    if (btnCloseMp) btnCloseMp.addEventListener('click', closeMpModal);
+    if (btnSaveMp) btnSaveMp.addEventListener('click', closeMpModal);
+
+    if (btnJoinRoom) {
+        btnJoinRoom.addEventListener('click', () => {
+            const code = inputRoom.value.trim();
+            if (code) {
+                connectToRoom(code);
+                postKillfeed(`🌐 Switched to Aisle #${currentRoomCode}`, 'text-blue-600 font-bold');
+                closeMpModal();
+            }
+        });
+    }
+
+    document.getElementById('btn-start').addEventListener('click', startBattle);
+<!-- ... existing code ... -->
+    window.onload = function() {
+        accountMgr.updateUI();
+        resizeGameCanvas();
+        setupEventListeners();
+        buildSupermarketArena();
+        initMultiplayer();
+        requestAnimationFrame(gameLoop);
+    };
+    </script>
+</body>
+</html>
